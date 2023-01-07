@@ -188,10 +188,30 @@ function loadVideos(params) {
     xhr.send();
 }
 
+function preFillFormAttributes(params) {
+    if (params.has('search')) {
+        document.getElementById('search').value = params.get('search');
+    }
+    if (params.has('limit')) {
+        document.getElementById('limit').value = params.get('limit');
+    }
+    if (params.has('order')) {
+        document.getElementById('order').value = params.get('order');
+    }
+    if (params.has('publishedAfter')) {
+        document.getElementById('publishedAfter').value = params.get('publishedAfter');
+    }
+    if (params.has('publishedBefore')) {
+        document.getElementById('publishedBefore').value = params.get('publishedBefore');
+    }
+}
+
 // load videos when the page is ready
 document.addEventListener('DOMContentLoaded', function() {
     // get the query parameters
     const params = new URLSearchParams(window.location.search);
+    // pre-fill form attributes with query parameters
+    preFillFormAttributes(params);
     // load the videos
     loadVideos(params);
 });

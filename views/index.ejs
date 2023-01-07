@@ -14,24 +14,64 @@
       <%- include('partials/loader') %>
       <%- include('partials/video_modal') %>
       <header>
-        <nav class="navbar bg-body-tertiary">
-          <div class="container-fluid">
+        <nav class="navbar bg-body-tertiary mt-3 mb-3" style="padding: 0;">
+          <div>
             <a class="navbar-brand">
-              <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" 
+              <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png"
                 alt="YouTube" width="30" class="d-inline-block align-text-top">
               YouTube
             </a>
-            <form class="d-flex" role="search">
-              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-              <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
           </div>
-        </nav>        
+        </nav>
       </header>
       <main>
+        <div>
+          <form>
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" name="search" id="search"
+                placeholder="Search video by title or description">
+              <button class="btn" type="submit">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </button>
+            </div>
+            <div class="row">
+              <div class="col mt-3">
+                <label for="publishedBefore" class="form-label">Published Before</label>
+                <input type="datetime-local" class="form-control"
+                  name="publishedBefore" id="publishedBefore">
+              </div>
+              <div class="col mt-3">
+                <label for="publishedAfter" class="form-label">Published After</label>
+                <input type="datetime-local" class="form-control"
+                  name="publishedAfter" id="publishedAfter">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col mt-3">
+                <label for="order mb-3" class="form-label">Order By</label>
+                <select class="form-control form-select form-select-sm"
+                  id="order" name="order">
+                  <option value="ASC">Ascending</option>
+                  <option value="DESC" selected>Descending</option>
+                </select>
+              </div>
+              <div class="col mt-3">
+                <label for="limit mb-3" class="form-label">Results per page</label>
+                <select class="form-control form-select form-select-sm"
+                  id="limit" name="limit">
+                  <option value="5">5</option>
+                  <option value="10" selected>10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
         <div id="videos"></div>
       </main>
-    </div>    
+    </div>
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
