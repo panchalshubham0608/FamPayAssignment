@@ -28,10 +28,16 @@ function toMysqlDate(date) {
     return date.toISOString().slice(0, 19).replace('T', ' ');
 }
 
+// sanitizes the string to be used in LIKE query
+function sanitizeLikeString(str) {
+    return str.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
+}
+
 // exports the functions
 module.exports = {
     toBase64,
     fromBase64,
     toNumber,
-    toMysqlDate
+    toMysqlDate,
+    sanitizeLikeString
 };

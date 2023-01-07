@@ -160,7 +160,7 @@ function insertManyVideos(videos) {
 // selects videos in given `publishedAt` order
 // `limit` is the number of videos to select
 // `page` is the page number
-function selectVideos({limit, page, order, publishedAfter, publishedBefore}) {
+function selectVideos({searchQuery, limit, page, order, publishedAfter, publishedBefore}) {
     // return a promise
     return new Promise((resolve, reject) => {
         // select videos from the database
@@ -181,6 +181,21 @@ function selectVideos({limit, page, order, publishedAfter, publishedBefore}) {
                 args.push(publishedBefore);
             }            
         }
+
+        // add the search query if provided
+        // search by `title` or `description`
+        if (searchQuery) {
+            if (publishedAfter || publishedBefore) {
+                query += 'AND ';
+            } else {
+                query += 'WHERE ';
+            }
+            query += '(`title` LIKE ? OR `description` LIKE ?) ';
+            args.push('%' + searchQuery + '%');
+            args.push('%' + searchQuery + '%');
+        }
+
+
         // add the order by clause
         query += 'ORDER BY `published_at` ' + order + ' ';
         // add the limit clause

@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 const logger = require('../util/logger');
 const { selectVideos } = require('../util/mysql');
-const { toNumber, toMysqlDate } = require('../util/parser');
+const { toNumber, toMysqlDate, sanitizeLikeString } = require('../util/parser');
 
 
 // GET /api
 router.get('/', function(req, res) {
     // get the query parameters
-    let { limit, page, order, publishedAfter, publishedBefore } = req.query;
+    let { limit, page, order, publishedAfter, publishedBefore, query } = req.query;
     // set the default values - input sanitization to avoid SQL injection
     limit = toNumber(limit, 10);
     page = toNumber(page, 1);
@@ -18,6 +18,9 @@ router.get('/', function(req, res) {
     }
     if (publishedBefore) {
         publishedBefore = toMysqlDate(publishedBefore);
+    }
+    if (query) {
+        query = sanitizeLikeString(query);
     }
     // log the request
     logger.info('GET /api', { limit, page, order, publishedAfter, publishedBefore });
