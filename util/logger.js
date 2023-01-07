@@ -8,8 +8,11 @@ const options = {
     file: {
         level: 'info',
         format: combine(
+            format.errors({ stack: true }),
+            format.metadata(),
+            format.json(),
             timestamp(),
-            printf(info => `${info.timestamp} ${info.level}: ${info.message}`),
+            printf(info => `${info.timestamp} ${info.level}: ${info.message} ${JSON.stringify(info.metadata)}`),
         ),
         defaultMeta: { service: 'user-service' },
         transports: [

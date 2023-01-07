@@ -3,7 +3,7 @@
 require('dotenv').config();
 // axios is a promise based HTTP client for the browser and node.js
 const axios = require('axios');
-const { insertManyVideos } = require('./mysql');
+const { lastPublishedAt, insertManyVideos } = require('./mysql');
 const logger = require('./logger');
 
 // set default configuration for axios
@@ -35,14 +35,22 @@ function searchVideos({ searchQuery, searchPart, searchType, searchOrder, maxRes
 }
 
 // get video details
-function syncDB() {
-    // stores the time when the videos were last updated
-    let lastUpdated = new Date(process.env.PUBLISHED_AFTER || '2023-01-01T00:00:00Z');
+function syncDB() {    
     // repeatedly refresh the videos every `REFRESH_INTERVAL` seconds
     let refreshInterval = (process.env.REFRESH_INTERVAL || 60) * 1000;
     setInterval(async () => {
-        // call searchVideos function
-        logger.info(`Syncing cache...Searching for videos published after ${lastUpdated.toISOString()}`);
+        // log the refresh
+        logger.info('Refreshing the videos');
+        // get the last updated time
+        let lastUpdated = null;
+        try {
+            lastUpdated = await lastPublishedAt();
+        } catch (error) {
+            logger.error(error);
+            lastUpdated = new Date(process.env.PUBLISHED_AFTER || '2023-01-01T00:00:00Z');
+        }
+        // search for videos
+        logger.info(`Searching for videos published after ${lastUpdated}`);
         try {
             // search for videos
             let response = await searchVideos({
@@ -50,7 +58,7 @@ function syncDB() {
                 searchPart: process.env.SEARCH_PART || 'snippet',
                 searchType: process.env.SEARCH_TYPE || 'video',
                 searchOrder: process.env.ORDER || 'date',
-                maxResults: process.env.MAX_RESULTS || 5,
+                maxResults: process.env.SEARCH_MAX_RESULTS || 5,
                 publishedAfter: lastUpdated
             });
             // convert the videos into appropriate format
@@ -67,8 +75,6 @@ function syncDB() {
             });
             // insert the videos into the database
             await insertManyVideos(videos);
-            // update the last updated time
-            lastUpdated = new Date();
         } catch (error) {
             // log the error
             logger.error(error);
