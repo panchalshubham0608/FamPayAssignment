@@ -160,12 +160,20 @@ function insertManyVideos(videos) {
 // selects videos in given `publishedAt` order
 // `limit` is the number of videos to select
 // `page` is the page number
-function selectVideos({searchQuery, limit, page, order, publishedAfter, publishedBefore}) {
+function selectVideos({search, limit, page, order, publishedAfter, publishedBefore, thumbnailSize}) {
     // return a promise
     return new Promise((resolve, reject) => {
         // select videos from the database
         let query = 'SELECT * FROM `youtube_video` ';
         let args = [];
+
+        // inner join the thumbnails
+        query += 'INNER JOIN `video_thumbnail` ON `youtube_video`.`video_id` = `video_thumbnail`.`video_id` ';
+        // pick only thumbnails with 
+        query += 'AND `video_thumbnail`.`key` = ? ';
+        args.push(thumbnailSize);
+
+
         // add the where clause if the publishedAfter or publishedBefore is provided
         if (publishedAfter || publishedBefore) {
             query += 'WHERE ';
@@ -184,17 +192,16 @@ function selectVideos({searchQuery, limit, page, order, publishedAfter, publishe
 
         // add the search query if provided
         // search by `title` or `description`
-        if (searchQuery) {
+        if (search) {
             if (publishedAfter || publishedBefore) {
                 query += 'AND ';
             } else {
                 query += 'WHERE ';
             }
             query += '(`title` LIKE ? OR `description` LIKE ?) ';
-            args.push('%' + searchQuery + '%');
-            args.push('%' + searchQuery + '%');
+            args.push('%' + search + '%');
+            args.push('%' + search + '%');
         }
-
 
         // add the order by clause
         query += 'ORDER BY `published_at` ' + order + ' ';

@@ -2,30 +2,16 @@ const express = require('express');
 const router = express.Router();
 const logger = require('../util/logger');
 const { selectVideos } = require('../util/mysql');
-const { toNumber, toMysqlDate, sanitizeLikeString } = require('../util/parser');
-
+const { searchQueryParams } = require('../util/params');
 
 // GET /api
 router.get('/', function(req, res) {
     // get the query parameters
-    let { limit, page, order, publishedAfter, publishedBefore, query } = req.query;
-    // set the default values - input sanitization to avoid SQL injection
-    limit = toNumber(limit, 10);
-    page = toNumber(page, 1);
-    order = (order && order.toUpperCase() !== 'ASC') ? 'DESC' : 'ASC';
-    if (publishedAfter) {
-        publishedAfter = toMysqlDate(publishedAfter);
-    }
-    if (publishedBefore) {
-        publishedBefore = toMysqlDate(publishedBefore);
-    }
-    if (query) {
-        query = sanitizeLikeString(query);
-    }
+    const searchParams = searchQueryParams(req.query);
     // log the request
-    logger.info('GET /api', { limit, page, order, publishedAfter, publishedBefore });
+    logger.info('GET /api', searchParams);
     // get the videos
-    selectVideos({ limit, page, order, publishedAfter, publishedBefore }).then(videos => {
+    selectVideos(searchParams).then(videos => {
         logger.info('Successfully selected videos from the database');
         return res.status(200).json({ videos });
     }).catch(err => {

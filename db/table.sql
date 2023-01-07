@@ -11,10 +11,10 @@ CREATE TABLE `youtube_video` (
   `channel_id`      varchar(255) NOT NULL 
                     COMMENT 'channel id of the video',
 
-  `title`           text NOT NULL
+  `title`           text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL
                     COMMENT 'title of the video',
 
-  `description`     text NOT NULL
+  `description`     text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL
                     COMMENT 'description of the video',
 
   `published_at`    datetime NOT NULL 
@@ -53,5 +53,5 @@ CREATE TABLE `video_thumbnail` (
   `updated_at`      datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                     COMMENT 'updated date of the thumbnail',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 

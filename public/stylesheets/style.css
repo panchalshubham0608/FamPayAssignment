@@ -1,8 +1,29 @@
+html {
+  box-sizing: border-box;
+}
+html,
 body {
-  padding: 50px;
+  height: 100%;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
   color: #00B7FF;
+}
+
+.text-truncate-3 {
+  -webkit-line-clamp: 3;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.w-inherit{
+  width: inherit !important;
 }
