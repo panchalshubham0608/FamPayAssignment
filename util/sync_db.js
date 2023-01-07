@@ -4,6 +4,7 @@ require('dotenv').config();
 // axios is a promise based HTTP client for the browser and node.js
 const axios = require('axios');
 const { lastPublishedAt, insertManyVideos } = require('./mysql');
+const { toMysqlDate } = require('./parser');
 const logger = require('./logger');
 
 // set default configuration for axios
@@ -118,7 +119,7 @@ function syncDB() {
                         title: item.snippet.title,
                         description: item.snippet.description,
                         // format the date such that it can be inserted into the database
-                        publishedAt: new Date(item.snippet.publishedAt).toISOString().slice(0, 19).replace('T', ' '),
+                        publishedAt: toMysqlDate(item.snippet.publishedAt),
                         thumbnails: item.snippet.thumbnails
                     }
                 });

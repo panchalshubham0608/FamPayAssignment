@@ -157,8 +157,51 @@ function insertManyVideos(videos) {
     });
 }
 
+// selects videos in given `publishedAt` order
+// `limit` is the number of videos to select
+// `page` is the page number
+function selectVideos({limit, page, order, publishedAfter, publishedBefore}) {
+    // return a promise
+    return new Promise((resolve, reject) => {
+        // select videos from the database
+        let query = 'SELECT * FROM `youtube_video` ';
+        let args = [];
+        // add the where clause if the publishedAfter or publishedBefore is provided
+        if (publishedAfter || publishedBefore) {
+            query += 'WHERE ';
+            if (publishedAfter) {
+                query += '`published_at` >= ? ';
+                args.push(publishedAfter);
+            }
+            if (publishedBefore) {
+                if (publishedAfter) {
+                    query += 'AND ';
+                }
+                query += '`published_at` <= ? ';
+                args.push(publishedBefore);
+            }            
+        }
+        // add the order by clause
+        query += 'ORDER BY `published_at` ' + order + ' ';
+        // add the limit clause
+        query += 'LIMIT ? OFFSET ?';
+        args.push(limit);
+        args.push((page - 1) * limit);
+        // execute the query
+        connection.query(query, args, function (err, result) {
+            if (err) {
+                logger.error('Error selecting videos from the database', { error: err });
+                return reject(err);
+            }
+            // return the videos
+            resolve(result);
+        });
+    });
+}
+
 // export the connection
 module.exports = {
     lastPublishedAt,
-    insertManyVideos
+    insertManyVideos,
+    selectVideos
 };
