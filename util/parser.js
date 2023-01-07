@@ -1,14 +1,4 @@
 
-// converts the string to base64 encoding so that it can be inserted into the database
-function toBase64(str) {
-    return Buffer.from(str).toString('base64');
-}
-
-// converts the base64 encoded string to normal string
-function fromBase64(str) {
-    return Buffer.from(str, 'base64').toString();
-}
-
 // converts the string to number and returns the number
 // if the string is not a number, returns default value
 function toNumber(str, defaultValue) {
@@ -30,14 +20,21 @@ function toMysqlDate(date) {
 
 // sanitizes the string to be used in LIKE query
 function sanitizeLikeString(str) {
-    return toBase64(str.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_'));
+    return str.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
+}
+
+// returns true if string contains multi-byte characters
+function containsMultiByte(str) {
+    for (let i = 0; i < str.length; i++) {
+        if (str.charCodeAt(i) > 255) return true;
+    }
+    return false;
 }
 
 // exports the functions
 module.exports = {
-    toBase64,
-    fromBase64,
     toNumber,
     toMysqlDate,
-    sanitizeLikeString
+    sanitizeLikeString,
+    containsMultiByte
 };

@@ -136,5 +136,7 @@ function syncDB() {
     }, refreshInterval);
 }
 
-// sync the database
-// syncDB();
+// export the function
+module.exports = {
+    syncDB,
+};

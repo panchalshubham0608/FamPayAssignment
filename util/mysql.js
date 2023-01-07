@@ -103,6 +103,49 @@ function insertManyThumbnails(videos) {
     });
 }
 
+// insert single video into the database
+function insertSingleVideoWithThumbnail(video) {
+    // return a promise
+    return new Promise((resolve, reject) => {
+        let query = 'INSERT INTO `youtube_video` (`video_id`, `channel_id`, `title`, `description`, `published_at`) VALUES ?';
+        let args = [
+            [
+                video.videoId,
+                video.channelId,
+                video.title,
+                video.description,
+                video.publishedAt,
+            ]
+        ];
+        connection.query(query, [args], function (err, result) {
+            if (err) {
+                logger.error('Error inserting videos into the database', { error: err, video: video});
+                return reject(err);
+            }
+            // insert the thumbnails into the database
+            let thumbnails = Object.keys(video.thumbnails).map((key) => {
+                return [
+                    video.videoId,
+                    key,
+                    video.thumbnails[key].url,
+                    video.thumbnails[key].width,
+                    video.thumbnails[key].height
+                ];
+            });
+            // insert the thumbnails into the database
+            let query = 'INSERT INTO `video_thumbnail` (`video_id`, `key`, `url`, `width`, `height`) VALUES ?';
+            // insert the thumbnails into the database
+            connection.query(query, [thumbnails], function (err, result) {
+                if (err) {
+                    logger.error('Error inserting thumbnails into the database', { error: err, thumbnails: thumbnails });
+                    return reject(err);
+                }
+                resolve(result);
+            });
+        });
+    });
+}
+
 // insert multiple videos into the database
 function insertManyVideos(videos) {
     // return a promise
@@ -129,26 +172,41 @@ function insertManyVideos(videos) {
                 return [
                     video.videoId,
                     video.channelId,
-                    parser.toBase64(video.title),
-                    parser.toBase64(video.description),
+                    video.title,
+                    video.description,
                     video.publishedAt,
                 ];
             });
             // insert the videos into the database
             logger.info(`Inserting ${filteredVideos.length} videos into the database`);
-            connection.query(query, [args], function (err, result) {
+            connection.query(query, [args], async function (err, result) {
                 if (err) {
                     logger.error('Error inserting videos into the database', { error: err, videos: filteredVideos });
-                    return reject(err);
+                    // if batch insert fails, insert videos one by one
+                    let failedVideos = [];
+                    for (let video of filteredVideos) {
+                        try {
+                            await insertSingleVideoWithThumbnail(video);
+                        } catch(err) {
+                            logger.error('Error inserting video into the database', { error: err, video: video });
+                            failedVideos.push(video);
+                        }
+                    }
+                    // if there are any failed videos, return
+                    if (failedVideos.length > 0) {
+                        logger.error('Error inserting videos into the database', { error: err, videos: failedVideos });
+                        return reject(err);
+                    }
+                } else {
+                    // insert the thumbnails into the database
+                    insertManyThumbnails(filteredVideos).then(result => {
+                        logger.info('Successfully inserted videos into the database');
+                        resolve(result);
+                    }).catch(err => {
+                        logger.error('Error inserting thumbnails into the database', { error: err });
+                        return reject(err);
+                    });
                 }
-                // insert the thumbnails into the database
-                insertManyThumbnails(filteredVideos).then(result => {
-                    logger.info('Successfully inserted videos into the database');
-                    resolve(result);
-                }).catch(err => {
-                    logger.error('Error inserting thumbnails into the database', { error: err });
-                    return reject(err);
-                });
             });
         }).catch(err => {
             logger.error('Error filtering out existing videos');
@@ -224,12 +282,6 @@ function selectVideos({search, limit, page, order, publishedAfter, publishedBefo
             if (justCount) {
                 return resolve(result[0].count);
             }
-            // transform the videos
-            result = result.map(video => {
-                video.title = parser.fromBase64(video.title);
-                video.description = parser.fromBase64(video.description);
-                return video;
-            });
             resolve(result);
         });
     });

@@ -6,12 +6,18 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var { syncDB } = require('./util/sync_db');
 
+
+// sync the database with the latest videos in background
+syncDB();
+
+// setup routes
 var indexRouter = require('./routes/index');
 var apiRouter = require('./routes/api');
 
+// create the server
 var app = express();
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');

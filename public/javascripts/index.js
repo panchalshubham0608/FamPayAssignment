@@ -28,7 +28,7 @@ function showVideoModal(video) {
     iframe.src = `https://www.youtube.com/embed/${video.video_id}`;
     iframe.width = '100%';
     iframe.height = '100%';
-    iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+    iframe.allow = 'accelerometer; encrypted-media; gyroscope; picture-in-picture';
     iframe.allowFullscreen = true;
     container.appendChild(iframe);
 
