@@ -12,7 +12,17 @@ const options = {
             format.metadata(),
             format.json(),
             timestamp(),
-            printf(info => `${info.timestamp} ${info.level}: ${info.message} ${JSON.stringify(info.metadata)}`),
+            printf(info => {
+                let metadata = '';
+                if (info.metadata) {
+                    try {
+                        metadata = JSON.stringify(info.metadata);
+                    } catch (e) {
+                        metadata = info.metadata;
+                    }
+                }
+                return `${info.timestamp} ${info.level}: ${info.message} ${metadata}`
+            }),
         ),
         defaultMeta: { service: 'user-service' },
         transports: [

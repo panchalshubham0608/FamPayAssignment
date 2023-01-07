@@ -34,7 +34,7 @@ function lastPublishedAt() {
             // if there are no videos in the database, return the default date
             if (!result.length) {
                 // return the default date
-                return resolve(new Date(process.env.PUBLISHED_AFTER || '2023-01-01T00:00:00Z'));
+                return reject('No videos in the database');
             }
             // return the last published_at date
             resolve(new Date(result[0].published_at));
