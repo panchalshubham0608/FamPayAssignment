@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  mysqldb:
+    image: mysql:5.7
+    container_name: mysqldb
+    platform: linux/x86_64
+    restart: always
+    environment:
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+    command: --init-file /docker-entrypoint-initdb.d/init.sql
+
+  app:
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+    build: .
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 8080:8080
+    environment:
+      DB_HOST: mysqldb
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REFRESH_INTERVAL: 10 # duration in seconds
+      YOUTUBE_API_KEYS: AIzaSyAOlCkEOuPsqBMDEZHZzIL0dFJ71f3ejgQ,AIzaSyB_mpOls6dt1MZbtUfTZrNJf1bQ5B089hA # your YouTube API keys
+      SEARCH_QUERY: cricket # the search query to use when searching for videos
+      SEARCH_TYPE: video # the type of search to perform
+      SEARCH_ORDER: date # the order in which to return search results
+      SEARCH_MAX_RESULTS: 50 # the maximum number of results to return
+      SEARCH_PART: snippet # the part of the video to return
+
+volumes:
+  db_data:

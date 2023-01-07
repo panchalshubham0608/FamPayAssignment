@@ -4,19 +4,21 @@ const logger = require('./logger');
 const parser = require('./parser');
 
 // create singleton connection
-const connection = mysql.createConnection({
+const db_config = {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    port: process.env.DB_PORT
-});
+    port: process.env.DB_PORT,
+}
+const connection = mysql.createConnection(db_config);
 
 
 // connect to the database
 connection.connect(function (err) {
     if (err) {
-        logger.error(err);
+        let config = {...db_config, password: '********'};
+        logger.error('Failed to connect to db', { error: err, db_config: config});
         return;
     }
     logger.info('Connection established');

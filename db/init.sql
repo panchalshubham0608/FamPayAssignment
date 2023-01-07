@@ -1,9 +1,15 @@
+-- create database if does not exist
+CREATE DATABASE IF NOT EXISTS `youtubedb` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
 -- drop table if already exists
-DROP TABLE IF EXISTS `youtube_video`;
-DROP TABLE IF EXISTS `video_thumbnail`;
+-- DROP TABLE IF EXISTS `youtube_video`;
+-- DROP TABLE IF EXISTS `video_thumbnail`;
+
+-- use database
+USE `youtubedb`;
 
 -- create table
-CREATE TABLE `youtube_video` (
+CREATE TABLE IF NOT EXISTS `youtube_video` (
   `video_id`        varchar(255) NOT NULL 
                     PRIMARY KEY 
                     COMMENT 'id of the video',
@@ -28,7 +34,7 @@ CREATE TABLE `youtube_video` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- thumbnail is the url of the thumbnail image
-CREATE TABLE `video_thumbnail` (
+CREATE TABLE IF NOT EXISTS `video_thumbnail` (
   `id`              int(11) NOT NULL AUTO_INCREMENT
                     COMMENT 'id of the thumbnail',
 
@@ -55,3 +61,5 @@ CREATE TABLE `video_thumbnail` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- show tables
+SHOW TABLES;
