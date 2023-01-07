@@ -41,7 +41,7 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       REFRESH_INTERVAL: 10 # duration in seconds
-      YOUTUBE_API_KEYS: AIzaSyAOlCkEOuPsqBMDEZHZzIL0dFJ71f3ejgQ,AIzaSyB_mpOls6dt1MZbtUfTZrNJf1bQ5B089hA # your YouTube API keys
+      YOUTUBE_API_KEYS: ${YOUTUBE_API_KEYS} # your YouTube API keys
       SEARCH_QUERY: cricket # the search query to use when searching for videos
       SEARCH_TYPE: video # the type of search to perform
       SEARCH_ORDER: date # the order in which to return search results
