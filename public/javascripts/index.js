@@ -23,15 +23,16 @@ function showVideoModal(video) {
     `<strong>Channel ID:</strong> ${video.channel_id}<br>` + 
     `<strong>Publish Date:</strong> ${new Date(video.published_at).toLocaleString()}<br>`;
     container.appendChild(ids);
-    // create an image
-    let image = document.createElement('img');
-    // set the image src
-    image.src = video.url;
-    // set the image alt
-    image.alt = video.title;
-    image.style.width = 'inherit';    
-    // add the image to the video modal body
-    container.appendChild(image);
+    // add a link to the video
+    let iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube.com/embed/${video.video_id}`;
+    iframe.width = '100%';
+    iframe.height = '100%';
+    iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+    iframe.allowFullscreen = true;
+    container.appendChild(iframe);
+
+
     // display the details of the video
     let h5 = document.createElement('h5');
     h5.style.wordBreak = 'break-all';
@@ -78,7 +79,7 @@ function createVideoCard(video) {
     // add the card body to the card
     card.appendChild(cardBody);
     // add a card title
-    let cardTitle = document.createElement('h5');
+    let cardTitle = document.createElement('h6');
     // set the card title classes
     cardTitle.classList.add('card-title');
     cardTitle.classList.add('text-truncate-3');
@@ -149,6 +150,70 @@ function showVideosUX(videos) {
     }
 }
 
+// constructs the link to the given page number
+function constructPageLink(pageNumber) {
+    let url = new URL(window.location.href);
+    url.searchParams.set('page', pageNumber);
+    return url.toString();
+}
+
+
+// adds pagination to the UX
+function addPaginationUX(totalCount) {
+    let currentPage = parseInt(new URLSearchParams(window.location.search).get('page') || 1);
+    let limit = parseInt(new URLSearchParams(window.location.search).get('limit') || 10);
+    let totalPages = Math.ceil(totalCount / limit);
+    let pagination = document.getElementById('pagination');
+    pagination.innerHTML = '';
+    if (totalPages <= 1) return;
+    // show max 5 pages
+    let startPage = currentPage - 2;
+    let endPage = currentPage + 2;
+    if (startPage < 1) {
+        startPage = 1;
+        endPage = Math.min(5, totalPages);
+    }
+    if (endPage > totalPages) {
+        endPage = totalPages;
+        startPage = Math.max(1, endPage - 5);
+    }
+    // add previous button
+    if (currentPage > 1) {
+        let li = document.createElement('li');
+        li.classList.add('page-item');
+        let a = document.createElement('a');
+        a.classList.add('page-link');
+        a.href = constructPageLink(currentPage - 1);
+        a.innerHTML = '&laquo;';
+        li.appendChild(a);
+        pagination.appendChild(li);
+    }
+    // add pages
+    for (let i = startPage; i <= endPage; i++) {
+        let li = document.createElement('li');
+        li.classList.add('page-item');
+        if (i === currentPage) li.classList.add('active');
+        let a = document.createElement('a');
+        a.classList.add('page-link');
+        a.href = constructPageLink(i);
+        a.innerText = i;
+        li.appendChild(a);
+        pagination.appendChild(li);
+    }
+    // add next button
+    if (currentPage < totalPages) {
+        let li = document.createElement('li');
+        li.classList.add('page-item');
+        let a = document.createElement('a');
+        a.classList.add('page-link');
+        a.href = constructPageLink(currentPage + 1);
+        a.innerHTML = '&raquo;';
+        li.appendChild(a);
+        pagination.appendChild(li);
+    }
+
+}
+
 // load videos from the server
 function loadVideos(params) {
     // set teh default parameters
@@ -170,6 +235,8 @@ function loadVideos(params) {
             const response = JSON.parse(xhr.responseText);
             // show the videos on UX
             showVideosUX(response.videos);
+            // add pagination to the UX
+            addPaginationUX(response.totalCount);
         } else {
             // log the error
             console.log('Error loading videos', xhr);

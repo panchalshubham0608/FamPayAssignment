@@ -160,12 +160,16 @@ function insertManyVideos(videos) {
 // selects videos in given `publishedAt` order
 // `limit` is the number of videos to select
 // `page` is the page number
-function selectVideos({search, limit, page, order, publishedAfter, publishedBefore, thumbnailSize}) {
+function selectVideos({search, limit, page, order, publishedAfter, publishedBefore, thumbnailSize, justCount}) {
     // return a promise
     return new Promise((resolve, reject) => {
         // select videos from the database
         let query = 'SELECT * FROM `youtube_video` ';
         let args = [];
+        if (justCount) {
+            logger.info('Selecting count of videos');
+            query = 'SELECT COUNT(*) AS `count` FROM `youtube_video` ';
+        }
 
         // inner join the thumbnails
         query += 'INNER JOIN `video_thumbnail` ON `youtube_video`.`video_id` = `video_thumbnail`.`video_id` ';
@@ -205,17 +209,27 @@ function selectVideos({search, limit, page, order, publishedAfter, publishedBefo
 
         // add the order by clause
         query += 'ORDER BY `published_at` ' + order + ' ';
-        // add the limit clause
-        query += 'LIMIT ? OFFSET ?';
-        args.push(limit);
-        args.push((page - 1) * limit);
+        if (!justCount) {
+            // add the limit clause
+            query += 'LIMIT ? OFFSET ?';
+            args.push(limit);
+            args.push((page - 1) * limit);
+        }
         // execute the query
         connection.query(query, args, function (err, result) {
             if (err) {
                 logger.error('Error selecting videos from the database', { error: err });
                 return reject(err);
             }
-            // return the videos
+            if (justCount) {
+                return resolve(result[0].count);
+            }
+            // transform the videos
+            result = result.map(video => {
+                video.title = parser.fromBase64(video.title);
+                video.description = parser.fromBase64(video.description);
+                return video;
+            });
             resolve(result);
         });
     });

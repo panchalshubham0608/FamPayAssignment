@@ -10,7 +10,7 @@ function searchQueryParams(query) {
     let params =  {
         limit: toNumber(query.limit, 10),
         page: toNumber(query.page, 1),
-        order: (query.order && query.order.toUpperCase() !== 'ASC') ? 'DESC' : 'ASC',
+        order: (query.order && query.order.toUpperCase() === 'ASC') ? 'ASC' : 'DESC',
         thumbnailSize: (query.thumbnailSize && THUMBNAIL_SIZES.includes(query.thumbnailSize.toUpperCase())) ? query.thumbnailSize.toUpperCase() : 'DEFAULT'
     };
     if (params.limit < 1) params.limit = 1;

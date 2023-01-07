@@ -30,7 +30,7 @@ function toMysqlDate(date) {
 
 // sanitizes the string to be used in LIKE query
 function sanitizeLikeString(str) {
-    return str.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
+    return toBase64(str.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_'));
 }
 
 // exports the functions
